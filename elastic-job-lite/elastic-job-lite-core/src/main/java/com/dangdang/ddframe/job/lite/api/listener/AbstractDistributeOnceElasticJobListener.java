@@ -23,6 +23,8 @@ import com.dangdang.ddframe.job.lite.internal.guarantee.GuaranteeService;
 import com.dangdang.ddframe.job.util.env.TimeService;
 import lombok.Setter;
 
+import java.util.Set;
+
 /**
  * 在分布式作业中只执行一次的监听器.
  * 
@@ -58,7 +60,11 @@ public abstract class AbstractDistributeOnceElasticJobListener implements Elasti
     
     @Override
     public final void beforeJobExecuted(final ShardingContexts shardingContexts) {
-        guaranteeService.registerStart(shardingContexts.getShardingItemParameters().keySet());
+        Set<Integer> shardingItems = shardingContexts.getShardingItemParameters().keySet();
+        if (shardingItems.isEmpty()) {
+            return;
+        }
+        guaranteeService.registerStart(shardingItems);
         if (guaranteeService.isAllStarted()) {
             doBeforeJobExecutedAtLastStarted(shardingContexts);
             guaranteeService.clearAllStartedInfo();
@@ -80,7 +86,11 @@ public abstract class AbstractDistributeOnceElasticJobListener implements Elasti
     
     @Override
     public final void afterJobExecuted(final ShardingContexts shardingContexts) {
-        guaranteeService.registerComplete(shardingContexts.getShardingItemParameters().keySet());
+        Set<Integer> shardingItems = shardingContexts.getShardingItemParameters().keySet();
+        if (shardingItems.isEmpty()) {
+            return;
+        }
+        guaranteeService.registerComplete(shardingItems);
         if (guaranteeService.isAllCompleted()) {
             doAfterJobExecutedAtLastCompleted(shardingContexts);
             guaranteeService.clearAllCompletedInfo();
