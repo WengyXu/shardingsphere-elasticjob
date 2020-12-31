@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.dangdang</groupId>
     <artifactId>elastic-job</artifactId>
-    <version>2.1.1</version>
+    <version>2.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Elastic-Job - distributed scheduled job solution</description>
@@ -663,15 +663,17 @@
             <timezone>8</timezone>
         </developer>
     </developers>
-    
+
     <distributionManagement>
-        <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
         <repository>
-            <id>sonatype-nexus-releases</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <id>Migu-Nexus</id>
+            <name>corp nexus-releases</name>
+            <url>http://nexus.cmvideo.cn:8081/repository/maven-releases/</url>
         </repository>
+        <snapshotRepository>
+            <id>Migu-Nexus</id>
+            <name>corp nexus-snapshot</name>
+            <url>http://nexus.cmvideo.cn:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
     </distributionManagement>
 </project>
