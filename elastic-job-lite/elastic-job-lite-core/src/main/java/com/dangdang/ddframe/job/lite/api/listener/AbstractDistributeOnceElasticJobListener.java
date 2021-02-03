@@ -20,6 +20,7 @@ package com.dangdang.ddframe.job.lite.api.listener;
 import com.dangdang.ddframe.job.exception.JobSystemException;
 import com.dangdang.ddframe.job.executor.ShardingContexts;
 import com.dangdang.ddframe.job.lite.internal.guarantee.GuaranteeService;
+import com.dangdang.ddframe.job.util.concurrent.ThreadLocalUtils;
 import com.dangdang.ddframe.job.util.env.TimeService;
 import lombok.Setter;
 
@@ -61,7 +62,7 @@ public abstract class AbstractDistributeOnceElasticJobListener implements Elasti
     @Override
     public final void beforeJobExecuted(final ShardingContexts shardingContexts) {
         Set<Integer> shardingItems = shardingContexts.getShardingItemParameters().keySet();
-        if (shardingItems.isEmpty()) {
+        if (shardingItems.isEmpty() || checkFailover()) {
             return;
         }
         guaranteeService.registerStart(shardingItems);
@@ -83,11 +84,19 @@ public abstract class AbstractDistributeOnceElasticJobListener implements Elasti
             handleTimeout(startedTimeoutMilliseconds);
         }
     }
-    
+
+    private boolean checkFailover() {
+        boolean failoverFlag = false;
+        if(ThreadLocalUtils.get("failoverFlag")!=null) {
+            failoverFlag =  ThreadLocalUtils.get("failoverFlag");
+        }
+        return failoverFlag;
+    }
+
     @Override
     public final void afterJobExecuted(final ShardingContexts shardingContexts) {
         Set<Integer> shardingItems = shardingContexts.getShardingItemParameters().keySet();
-        if (shardingItems.isEmpty()) {
+        if (shardingItems.isEmpty() || checkFailover()) {
             return;
         }
         guaranteeService.registerComplete(shardingItems);

@@ -35,6 +35,7 @@ import com.dangdang.ddframe.job.lite.internal.sharding.ExecutionService;
 import com.dangdang.ddframe.job.lite.internal.failover.FailoverService;
 import com.dangdang.ddframe.job.lite.internal.sharding.ShardingService;
 import com.dangdang.ddframe.job.reg.base.CoordinatorRegistryCenter;
+import com.dangdang.ddframe.job.util.concurrent.ThreadLocalUtils;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 
@@ -109,6 +110,7 @@ public final class LiteJobFacade implements JobFacade {
         if (isFailover) {
             List<Integer> failoverShardingItems = failoverService.getLocalFailoverItems();
             if (!failoverShardingItems.isEmpty()) {
+                ThreadLocalUtils.put("failoverFlag", true);
                 return executionContextService.getJobShardingContext(failoverShardingItems);
             }
         }
@@ -120,7 +122,7 @@ public final class LiteJobFacade implements JobFacade {
         shardingItems.removeAll(executionService.getDisabledItems(shardingItems));
         return executionContextService.getJobShardingContext(shardingItems);
     }
-    
+
     @Override
     public boolean misfireIfRunning(final Collection<Integer> shardingItems) {
         return executionService.misfireIfHasRunningItems(shardingItems);

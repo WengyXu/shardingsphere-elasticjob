@@ -28,6 +28,7 @@ import com.dangdang.ddframe.job.executor.handler.ExecutorServiceHandler;
 import com.dangdang.ddframe.job.executor.handler.ExecutorServiceHandlerRegistry;
 import com.dangdang.ddframe.job.executor.handler.JobExceptionHandler;
 import com.dangdang.ddframe.job.executor.handler.JobProperties;
+import com.dangdang.ddframe.job.util.concurrent.ThreadLocalUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -131,6 +132,8 @@ public abstract class AbstractElasticJobExecutor {
         } catch (final Throwable cause) {
             //CHECKSTYLE:ON
             jobExceptionHandler.handleException(jobName, cause);
+        } finally {
+            ThreadLocalUtils.clear();
         }
     }
     
